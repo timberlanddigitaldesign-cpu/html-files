@@ -1464,7 +1464,7 @@ nav::after {
         <li>Monthly performance report (traffic + uptime)</li>
       </ul>
       <div class="pkg-footer">
-        <a href="cart.html" onclick="addToCart(event,'timber')" class="pkg-btn pkg-btn-f" data-cart-key="timber" style="display:block;text-align:center;text-decoration:none;">Add to Cart</a>
+        <a href="cart.html" onclick="addToCart(event,'timber')" data-cart-key="timber" class="pkg-btn pkg-btn-f" style="display:block;text-align:center;text-decoration:none;">Add to Cart</a>
         <a href="contact.html#contactForm" class="pkg-touch-link">Questions first? Let's talk →</a>
       </div>
     </div>
@@ -1499,7 +1499,7 @@ nav::after {
         <li>Annual full site audit + recommendations</li>
       </ul>
       <div class="pkg-footer">
-        <a href="cart.html" onclick="addToCart(event,'oldgrowth')" class="pkg-btn pkg-btn-o" data-cart-key="oldgrowth" style="display:block;text-align:center;text-decoration:none;">Add to Cart</a>
+        <a href="cart.html" onclick="addToCart(event,'oldgrowth')" data-cart-key="oldgrowth" class="pkg-btn pkg-btn-o" style="display:block;text-align:center;text-decoration:none;">Add to Cart</a>
         <a href="contact.html#contactForm" class="pkg-touch-link">Questions first? Let's talk →</a>
       </div>
     </div>
@@ -2007,7 +2007,6 @@ function addToCart(e, key) {
   saveCart(cart);
   updateBadge();
   setButtonAdded(e.currentTarget);
-  // Show toast
   const name = PRODUCTS_SVC[key] || key;
   document.getElementById('toastName').textContent = name;
   const toast = document.getElementById('cartToast');
