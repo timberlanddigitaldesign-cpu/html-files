@@ -10,7 +10,7 @@ const PRICE_MAP = {
   },
   timber: {
     type:           'deposit',
-    depositPriceId: 'price_1TmQvzLHhM9UWHAYG3Gw9ctP',
+    depositPriceId: 'price_1TmUE3LHhM9UWHAYKe9RCklA',
     balancePriceId: 'price_1TmQwfLHhM9UWHAYZWyZDCd1',
     fullPrice:      1499,
   },
