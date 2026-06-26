@@ -154,7 +154,7 @@ body {
   flex-direction: column;
 }
 .page-wrap { flex: 1; min-height: 60vh; position: relative; z-index: 2; }
-nav:not(.mobile-nav) { z-index: 200 !important; position: fixed !important; top: 0; left: 0; right: 0; pointer-events: all !important; background: rgba(6,14,26,0.97) !important; }
+nav:not(.mobile-nav) { z-index: 200 !important; position: fixed !important; top: 0; left: 0; right: 0; pointer-events: all !important; background: #00100A !important; }
 nav a, nav button, nav li { pointer-events: all !important; cursor: pointer !important; }
 .hamburger { pointer-events: all !important; cursor: pointer !important; z-index: 201 !important; }
 .mobile-nav { position: fixed !important; top: 66px !important; left: 0 !important; right: 0 !important; z-index: 200 !important; pointer-events: all !important; background: #060E1A !important; }
@@ -301,13 +301,13 @@ footer, .foot-bottom { position: relative; z-index: 2; background: #030A12 !impo
 
 <script>
 const PRODUCTS = {
-  sapling:             { name:'The Sapling',               price:799,   monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/7sY9AUbiQaMlazj0D3bII03' },
-  timber:              { name:'The Timber',                price:1499,   monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/9B65kE9aI8EdbDnetTbII04' },
-  oldgrowth:           { name:'The Old Growth',            price:2799,  monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/4gM3cwgDa07HfTDgC1bII05' },
-  'care-sapling':      { name:'Sapling Care Plan',         price:0,     monthly:79,  deposit:false, stripe:'https://buy.stripe.com/3cI14o9aIaMlePzgC1bII00' },
-  'care-timber':       { name:'Timber Care Plan',          price:0,     monthly:129,  deposit:false, stripe:'https://buy.stripe.com/eVq7sM5Yw07H0YJ3PfbII01' },
-  'care-oldgrowth':    { name:'Old Growth Care Plan',      price:0,     monthly:229, deposit:false, stripe:'https://buy.stripe.com/fZu5kE4Us6w56j3adDbII02' },
-  reskin:              { name:'The Reskin',                price:349,   monthly:0,   deposit:false, stripe:'https://buy.stripe.com/7sY8wQ4Us9IhePzbhHbII06' },
+  sapling:             { name:'The Sapling',               price:799,   monthly:0,   deposit:true,   stripe:null },
+  timber:              { name:'The Timber',                price:1499,  monthly:0,   deposit:true,   stripe:null },
+  oldgrowth:           { name:'The Old Growth',            price:2799,  monthly:0,   deposit:true,   stripe:null },
+  'care-sapling':      { name:'Sapling Care Plan',         price:0,     monthly:79,  deposit:false, stripe:null },
+  'care-timber':       { name:'Timber Care Plan',          price:0,     monthly:129,  deposit:false, stripe:null },
+  'care-oldgrowth':    { name:'Old Growth Care Plan',      price:0,     monthly:229, deposit:false, stripe:null },
+  reskin:              { name:'The Reskin',                price:349,   monthly:0,   deposit:false, stripe:null },
   copywriting:         { name:'Professional Copywriting',  price:249,   monthly:0,   deposit:false, stripe:null },
   photos:              { name:'Stock Photo Sourcing',      price:99,    monthly:0,   deposit:false, stripe:null },
   gbp:                 { name:'Google Business Profile',   price:129,    monthly:0,   deposit:false, stripe:null },
@@ -315,9 +315,9 @@ const PRODUCTS = {
   email:               { name:'Branded Email Setup',       price:129,   monthly:0,   deposit:false, stripe:null },
   reviews:             { name:'Review Generation Page',    price:99,    monthly:0,   deposit:false, stripe:null },
   revision:            { name:'Extra Revision Round',      price:99,    monthly:0,   deposit:false, stripe:null },
-  'care-sapling-sa':   { name:'Sapling Care (standalone)', price:0,     monthly:79,  deposit:false, stripe:'https://buy.stripe.com/3cI14o9aIaMlePzgC1bII00' },
-  'care-timber-sa':    { name:'Timber Care (standalone)',  price:0,     monthly:129,  deposit:false, stripe:'https://buy.stripe.com/eVq7sM5Yw07H0YJ3PfbII01' },
-  'care-oldgrowth-sa': { name:'Old Growth Care (standalone)', price:0,  monthly:229, deposit:false, stripe:'https://buy.stripe.com/fZu5kE4Us6w56j3adDbII02' },
+  'care-sapling-sa':   { name:'Sapling Care (standalone)', price:0,     monthly:79,  deposit:false, stripe:null },
+  'care-timber-sa':    { name:'Timber Care (standalone)',  price:0,     monthly:129,  deposit:false, stripe:null },
+  'care-oldgrowth-sa': { name:'Old Growth Care (standalone)', price:0,  monthly:229, deposit:false, stripe:null },
 };
 
 // Load cart from URL param (e.g. cart.html?add=sapling,care-sapling)
@@ -350,8 +350,9 @@ function render() {
   // Items
   document.getElementById('cartItems').innerHTML = keys.map(k => {
     const p = cart[k];
-    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : `$${p.price.toLocaleString()}`;
-    const sub  = p.monthly > 0 ? 'Monthly' : 'One-time';
+    const depAmt = p.deposit ? Math.round(p.price * 0.5) : p.price;
+    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString()} deposit` : `$${p.price.toLocaleString()}`;
+    const sub  = p.monthly > 0 ? 'Monthly' : p.deposit ? 'Website build (50% now)' : 'One-time';
     return `<div class="cart-item">
       <div>
         <div class="cart-item-name">${p.name}</div>
@@ -374,11 +375,12 @@ function render() {
   const depAmt     = depItems.reduce((s,k) => s + Math.round(cart[k].price*.5), 0);
   const fullAmt    = addonItems.reduce((s,k) => s + cart[k].price, 0);
   const onLaunch   = depItems.reduce((s,k) => s + (cart[k].price - Math.round(cart[k].price*.5)), 0);
-  const dueToday   = depAmt + fullAmt + monthly + (pkgItems.length && !depItems.length ? pkgAmt : 0);
+  const dueToday   = depAmt + fullAmt + monthly;
 
   let totHtml = '';
   if (pkgAmt) totHtml += `<div class="total-row"><span>Project total</span><span>$${pkgAmt.toLocaleString()}</span></div>`;
-  if (depItems.length) totHtml += `<div class="total-row"><span>50% due on launch</span><span>$${onLaunch.toLocaleString()}</span></div>`;
+  if (depAmt) totHtml += `<div class="total-row"><span>50% deposit (due today)</span><span>$${depAmt.toLocaleString()}</span></div>`;
+  if (onLaunch) totHtml += `<div class="total-row"><span>50% due on launch</span><span>$${onLaunch.toLocaleString()}</span></div>`;
   if (fullAmt) totHtml += `<div class="total-row"><span>Add-ons (full price)</span><span>$${fullAmt.toLocaleString()}</span></div>`;
   if (monthly) totHtml += `<div class="total-row"><span>Care plan (first month)</span><span>$${monthly}/mo</span></div>`;
   totHtml += `<div class="total-row highlight"><span>Due today</span><span>$${dueToday.toLocaleString()}</span></div>`;

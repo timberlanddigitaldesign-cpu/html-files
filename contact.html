@@ -1321,20 +1321,20 @@ nav::after {
       <div class="pkg-mini-name">The Sapling</div>
       <div class="pkg-mini-price">$799 <span>one-time</span></div>
       <div class="pkg-mini-desc">3-page site, live in 3 days</div>
-      <button class="pkg-mini-btn" onclick="addToCartAndGo('sapling')">Add to Cart →</button>
+      <button class="pkg-mini-btn" data-cart-key="sapling" onclick="addToCartAndGo('sapling')">Add to Cart →</button>
     </div>
     <div class="pkg-mini-card pkg-mini-featured">
       <div class="pkg-mini-badge">Most Popular</div>
       <div class="pkg-mini-name">The Timber</div>
       <div class="pkg-mini-price">$1,499 <span>one-time</span></div>
       <div class="pkg-mini-desc">6-page site, live in 5 days</div>
-      <button class="pkg-mini-btn" onclick="addToCartAndGo('timber')">Add to Cart →</button>
+      <button class="pkg-mini-btn" data-cart-key="timber" onclick="addToCartAndGo('timber')">Add to Cart →</button>
     </div>
     <div class="pkg-mini-card">
       <div class="pkg-mini-name">The Old Growth</div>
       <div class="pkg-mini-price">$2,799 <span>one-time</span></div>
       <div class="pkg-mini-desc">10-page site, live in 7 days</div>
-      <button class="pkg-mini-btn" onclick="addToCartAndGo('oldgrowth')">Add to Cart →</button>
+      <button class="pkg-mini-btn" data-cart-key="oldgrowth" onclick="addToCartAndGo('oldgrowth')">Add to Cart →</button>
     </div>
   </div>
   <p class="fade-up" style="text-align:center;font-size:.82rem;color:#4A7A9B;margin-top:1.5rem;">Not sure which package? <a onclick="location.href='services.html'" style="color:var(--amber);cursor:pointer;">View all packages</a> or fill out the form above and we'll help you choose.</p>
@@ -1431,15 +1431,34 @@ nav::after {
 </style>
 
 <script>
+function syncMiniButtons() {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem('tddCart') || '{}');
+    document.querySelectorAll('.pkg-mini-btn[data-cart-key]').forEach(btn => {
+      const key = btn.getAttribute('data-cart-key');
+      if (stored[key]) {
+        btn.textContent = '✓ In Cart';
+        btn.style.background = '#00C87A';
+        btn.style.color = '#060E1A';
+        btn.style.opacity = '0.85';
+        btn.disabled = true;
+      }
+    });
+  } catch(e) {}
+}
+
 function addToCartAndGo(key) {
   try {
     const stored = JSON.parse(sessionStorage.getItem('tddCart') || '{}');
     stored[key] = key;
     sessionStorage.setItem('tddCart', JSON.stringify(stored));
   } catch(e) {}
-  // Refresh nav badge
   updateCartBadge();
-  // Show feedback on the clicked button
+  syncMiniButtons();
+  syncMiniButtons();
+  /* no redirect, just stays on page */
+  return;
+  // old code below kept for reference
   document.querySelectorAll('.pkg-mini-btn').forEach(btn => {
     if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + key + "'")) {
       const orig = btn.textContent;
