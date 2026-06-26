@@ -94,12 +94,16 @@ nav{position:sticky;top:0;z-index:200;background:rgba(6,14,26,0.95);backdrop-fil
 .payment-note{font-size:.82rem;color:#7ab0c8;line-height:1.65;margin-bottom:1.25rem;background:rgba(0,200,255,0.05);border:1px solid rgba(0,200,255,0.1);border-radius:6px;padding:.85rem 1rem}
 .payment-note strong{color:var(--amber)}
 
-/* ── CHECKOUT ── */
-.checkout-summary{background:rgba(0,200,122,0.05);border:1px solid rgba(0,200,122,0.18);border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:.83rem;color:#7ab0c8;line-height:1.65}
-.checkout-summary strong{color:#00C87A}
-.checkout-error{display:none;font-size:.82rem;color:#ff6b6b;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);border-radius:6px;padding:.75rem 1rem;margin-bottom:1rem;line-height:1.6}
-.stripe-badge{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.72rem;color:#4A7A9B;margin-top:.75rem}
-.stripe-badge svg{width:14px;height:14px;opacity:.5}
+/* ── STRIPE LINKS ── */
+.stripe-links{display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.5rem}
+.stripe-link-row{display:flex;align-items:center;justify-content:space-between;background:rgba(6,14,26,0.6);border:1px solid rgba(0,200,255,0.1);border-radius:6px;padding:.8rem 1rem;gap:1rem}
+.stripe-link-name{color:#a0c4d8;font-size:.85rem;flex:1}
+.stripe-link-price{color:var(--amber);font-family:'Playfair Display',serif;font-weight:700;font-size:.9rem;flex-shrink:0}
+.stripe-link-price span{font-family:'Inter',sans-serif;font-size:.68rem;color:#7ab0c8;font-weight:400}
+.stripe-link-btn{background:var(--amber);border:none;border-radius:4px;color:#060E1A;font-size:.75rem;font-weight:700;padding:.4rem .9rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;transition:background .2s;white-space:nowrap;font-family:'Inter',sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.stripe-link-btn:hover{background:var(--amber-light)}
+.no-stripe-note{font-size:.78rem;color:#4A7A9B;padding:.75rem 1rem;background:rgba(6,14,26,0.4);border:1px solid rgba(0,200,255,0.08);border-radius:6px;line-height:1.6}
+.no-stripe-note strong{color:#a0c4d8}
 
 /* ── SUBMIT ── */
 .btn-submit{width:100%;background:var(--amber);border:none;border-radius:6px;padding:1rem;font-size:.92rem;font-weight:700;color:#060E1A;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;letter-spacing:.05em;text-transform:uppercase}
@@ -231,13 +235,9 @@ footer{background:#030A12;color:rgba(200,230,240,0.6);padding:52px 5% 36px;displ
       </div>
 
       <span class="section-label" style="margin-top:1.5rem;display:block">Payment</span>
-      <div class="checkout-summary" id="checkoutSummary"></div>
-      <div class="checkout-error" id="checkoutError"></div>
-      <button class="btn-submit" id="btnSubmit" onclick="submitOrder()">Proceed to Secure Checkout ↗</button>
-      <div class="stripe-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;opacity:.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Powered by Stripe · SSL encrypted
-      </div>
+      <div class="payment-note">Pay in full below to lock in your project. We'll be in touch within one business day to get the ball rolling.</div>
+      <div class="stripe-links" id="stripeLinks"></div>
+      <button class="btn-submit" id="btnSubmit" onclick="submitOrder()">Submit Order &amp; Pay Now ↗</button>
     </div>
 
   </div>
@@ -281,28 +281,29 @@ footer{background:#030A12;color:rgba(200,230,240,0.6);padding:52px 5% 36px;displ
 
 <script>
 const PRODUCTS = {
-  // deposit:true = 50% charged now, 50% invoiced at launch
-  sapling:             { name:'The Sapling',            price:497,  monthly:0,   deposit:true  },
-  timber:              { name:'The Timber',             price:997,  monthly:0,   deposit:true  },
-  oldgrowth:           { name:'The Old Growth',         price:1997, monthly:0,   deposit:true  },
-  reskin:              { name:'The Reskin',             price:197,  monthly:0,   deposit:false },
-  'care-sapling-sa':   { name:'Sapling Care Plan',      price:0,    monthly:59,  deposit:false },
-  'care-timber-sa':    { name:'Timber Care Plan',       price:0,    monthly:99,  deposit:false },
-  'care-oldgrowth-sa': { name:'Old Growth Care Plan',   price:0,    monthly:179, deposit:false },
-  copywriting:         { name:'Professional Copywriting',price:249, monthly:0,   deposit:false },
-  photos:              { name:'Stock Photo Sourcing',   price:99,   monthly:0,   deposit:false },
-  gbp:                 { name:'Google Business Profile',price:79,   monthly:0,   deposit:false },
-  booking:             { name:'Booking Integration',    price:149,  monthly:0,   deposit:false },
-  email:               { name:'Branded Email Setup',    price:129,  monthly:0,   deposit:false },
-  reviews:             { name:'Review Generation Page', price:79,   monthly:0,   deposit:false },
-  revision:            { name:'Extra Revision Round',   price:79,   monthly:0,   deposit:false },
-  'care-sapling':      { name:'Sapling Care Plan',      price:0,    monthly:59,  deposit:false },
-  'care-timber':       { name:'Timber Care Plan',       price:0,    monthly:99,  deposit:false },
-  'care-oldgrowth':    { name:'Old Growth Care Plan',   price:0,    monthly:179, deposit:false },
+  sapling:             { name:'The Sapling',               price:799,   monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/7sY9AUbiQaMlazj0D3bII03' },
+  timber:              { name:'The Timber',                price:1499,   monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/9B65kE9aI8EdbDnetTbII04' },
+  oldgrowth:           { name:'The Old Growth',            price:2799,  monthly:0,   deposit:false,  stripe:'https://buy.stripe.com/4gM3cwgDa07HfTDgC1bII05' },
+  'care-sapling':      { name:'Sapling Care Plan',         price:0,     monthly:79,  deposit:false, stripe:'https://buy.stripe.com/3cI14o9aIaMlePzgC1bII00' },
+  'care-timber':       { name:'Timber Care Plan',          price:0,     monthly:99,  deposit:false, stripe:'https://buy.stripe.com/eVq7sM5Yw07H0YJ3PfbII01' },
+  'care-oldgrowth':    { name:'Old Growth Care Plan',      price:0,     monthly:229, deposit:false, stripe:'https://buy.stripe.com/fZu5kE4Us6w56j3adDbII02' },
+  reskin:              { name:'The Reskin',                price:349,   monthly:0,   deposit:false, stripe:'https://buy.stripe.com/7sY8wQ4Us9IhePzbhHbII06' },
+  copywriting:         { name:'Professional Copywriting',  price:249,   monthly:0,   deposit:false, stripe:null },
+  photos:              { name:'Stock Photo Sourcing',      price:99,    monthly:0,   deposit:false, stripe:null },
+  gbp:                 { name:'Google Business Profile',   price:79,    monthly:0,   deposit:false, stripe:null },
+  booking:             { name:'Booking Integration',       price:149,   monthly:0,   deposit:false, stripe:null },
+  email:               { name:'Branded Email Setup',       price:129,   monthly:0,   deposit:false, stripe:null },
+  reviews:             { name:'Review Generation Page',    price:79,    monthly:0,   deposit:false, stripe:null },
+  revision:            { name:'Extra Revision Round',      price:79,    monthly:0,   deposit:false, stripe:null },
+  'care-sapling-sa':   { name:'Sapling Care (standalone)', price:0,     monthly:79,  deposit:false, stripe:'https://buy.stripe.com/3cI14o9aIaMlePzgC1bII00' },
+  'care-timber-sa':    { name:'Timber Care (standalone)',  price:0,     monthly:99,  deposit:false, stripe:'https://buy.stripe.com/eVq7sM5Yw07H0YJ3PfbII01' },
+  'care-oldgrowth-sa': { name:'Old Growth Care (standalone)', price:0,  monthly:229, deposit:false, stripe:'https://buy.stripe.com/fZu5kE4Us6w56j3adDbII02' },
 };
 
-// ── Cart state ────────────────────────────────────────────────
+// Load cart from URL param (e.g. cart.html?add=sapling,care-sapling)
+// or from sessionStorage
 let cart = {};
+// Merge URL param items into sessionStorage
 const params = new URLSearchParams(location.search);
 const toAdd = params.get('add');
 let stored = {};
@@ -311,15 +312,11 @@ if (toAdd) {
   toAdd.split(',').forEach(k => { if (PRODUCTS[k]) stored[k] = k; });
   sessionStorage.setItem('tddCart', JSON.stringify(stored));
 }
+// Resolve stored keys to full product objects
 Object.keys(stored).forEach(k => { if (PRODUCTS[k]) cart[k] = PRODUCTS[k]; });
 
-function saveCart() {
-  const keys = {};
-  Object.keys(cart).forEach(k => keys[k] = k);
-  sessionStorage.setItem('tddCart', JSON.stringify(keys));
-}
+function saveCart() { const keys = {}; Object.keys(cart).forEach(k => keys[k] = k); sessionStorage.setItem('tddCart', JSON.stringify(keys)); }
 
-// ── Render ────────────────────────────────────────────────────
 function render() {
   const keys = Object.keys(cart);
   if (!keys.length) {
@@ -330,15 +327,11 @@ function render() {
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('cartWrap').style.display = 'block';
 
-  // Items list
+  // Items
   document.getElementById('cartItems').innerHTML = keys.map(k => {
     const p = cart[k];
-    const disp = p.monthly > 0
-      ? `$${p.monthly}/mo`
-      : p.deposit
-        ? `$${Math.round(p.price * 0.5).toLocaleString()} now · $${Math.round(p.price * 0.5).toLocaleString()} at launch`
-        : `$${p.price.toLocaleString()}`;
-    const sub  = p.monthly > 0 ? 'Monthly recurring' : p.deposit ? '50/50 split payment' : 'One-time';
+    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : `$${p.price.toLocaleString()}`;
+    const sub  = p.monthly > 0 ? 'Monthly' : 'One-time';
     return `<div class="cart-item">
       <div>
         <div class="cart-item-name">${p.name}</div>
@@ -352,108 +345,82 @@ function render() {
   }).join('');
 
   // Totals
-  const monthly    = keys.reduce((s,k) => s + (cart[k].monthly || 0), 0);
-  const depositAmt = keys.reduce((s,k) => cart[k].deposit ? s + Math.round(cart[k].price * 0.5) : s, 0);
-  const fullAmt    = keys.reduce((s,k) => !cart[k].deposit && cart[k].price ? s + cart[k].price : s, 0);
-  const balanceAmt = keys.reduce((s,k) => cart[k].deposit ? s + (cart[k].price - Math.round(cart[k].price * 0.5)) : s, 0);
-  const dueToday   = depositAmt + fullAmt;
+  const oneTime   = keys.reduce((s,k) => s + (cart[k].price||0), 0);
+  const monthly   = keys.reduce((s,k) => s + (cart[k].monthly||0), 0);
+  const depItems  = [];
+  const fullItems = keys.filter(k => cart[k].price > 0);
+  const depAmt    = depItems.reduce((s,k) => s + Math.round(cart[k].price*.5), 0);
+  const fullAmt   = fullItems.reduce((s,k) => s + cart[k].price, 0);
+  const dueToday  = depAmt + fullAmt;
+  const onLaunch  = depItems.reduce((s,k) => s + (cart[k].price - Math.round(cart[k].price*.5)), 0);
 
-  let totHtml = '';
-  if (depositAmt) totHtml += `<div class="total-row"><span>Package deposit (50%)</span><span>$${depositAmt.toLocaleString()}</span></div>`;
-  if (balanceAmt) totHtml += `<div class="total-row"><span>Balance due at launch (50%)</span><span>$${balanceAmt.toLocaleString()}</span></div>`;
-  if (fullAmt)    totHtml += `<div class="total-row"><span>Add-ons &amp; extras</span><span>$${fullAmt.toLocaleString()}</span></div>`;
-  if (monthly)    totHtml += `<div class="total-row monthly"><span>Monthly recurring</span><span>$${monthly}/mo</span></div>`;
-  const dueLine = dueToday > 0 ? `$${dueToday.toLocaleString()}${monthly ? ` + $${monthly}/mo` : ''}` : `$${monthly}/mo`;
-  totHtml += `<div class="total-row highlight"><span>Due today</span><span>${dueLine}</span></div>`;
+  let totHtml = `<div class="total-row"><span>Project total</span><span>$${oneTime.toLocaleString()}</span></div>`;
+  if (depItems.length) {
+
+    totHtml += `<div class="total-row"><span>50% due on launch</span><span>$${onLaunch.toLocaleString()}</span></div>`;
+  }
+  if (fullAmt) totHtml += `<div class="total-row"><span>Add-ons (full price)</span><span>$${fullAmt.toLocaleString()}</span></div>`;
+  if (monthly) totHtml += `<div class="total-row monthly"><span>Recurring monthly</span><span>$${monthly}/mo</span></div>`;
+  totHtml += `<div class="total-row highlight"><span>Due today</span><span>$${dueToday.toLocaleString()}</span></div>`;
   document.getElementById('cartTotals').innerHTML = totHtml;
 
-  // Checkout summary note
-  const summaryParts = [];
-  if (depositAmt) summaryParts.push(`<strong>$${depositAmt.toLocaleString()}</strong> deposit`);
-  if (fullAmt)    summaryParts.push(`<strong>$${fullAmt.toLocaleString()}</strong> for add-ons`);
-  if (monthly)    summaryParts.push(`<strong>$${monthly}/mo</strong> recurring`);
-  const balanceNote = balanceAmt ? ` The <strong>$${balanceAmt.toLocaleString()}</strong> balance will be invoiced when your site launches.` : '';
-  document.getElementById('checkoutSummary').innerHTML =
-    `You'll be taken to Stripe's secure checkout to pay ${summaryParts.join(' + ')}.${balanceNote}`;
+  // Stripe links
+  const stripeItems   = keys.filter(k => cart[k].price > 0 && cart[k].stripe);
+  const noStripeItems = keys.filter(k => cart[k].price > 0 && !cart[k].stripe);
+  let html = '';
+  stripeItems.forEach(k => {
+    const p   = cart[k];
+    const amt = p.price;
+    const lbl = 'full';
+    const btn = 'Pay Now ↗';
+    html += `<div class="stripe-link-row">
+      <span class="stripe-link-name">${p.name}</span>
+      <span class="stripe-link-price">$${amt.toLocaleString()} <span>${lbl}</span></span>
+      <a href="${p.stripe}" target="_blank" class="stripe-link-btn">${btn}</a>
+    </div>`;
+  });
+  if (noStripeItems.length) {
+    const tot = noStripeItems.reduce((s,k) => s + cart[k].price, 0);
+    html += `<div class="no-stripe-note">Remaining items: <strong>$${tot.toLocaleString()} due</strong> — we'll send a Stripe payment link to your email within one business day.</div>`;
+  }
+  document.getElementById('stripeLinks').innerHTML = html;
 }
 
 function removeItem(k) {
   delete cart[k];
   saveCart();
-  // Tell services page to un-highlight this button if visible
-  try {
-    if (window.opener && window.opener.syncAllButtons) window.opener.syncAllButtons();
-  } catch(e) {}
   render();
-  updateBadge();
 }
 
-// ── Checkout ──────────────────────────────────────────────────
-async function submitOrder() {
+function submitOrder() {
   const first = document.getElementById('firstName').value.trim();
   const last  = document.getElementById('lastName').value.trim();
   const biz   = document.getElementById('businessName').value.trim();
   const em    = document.getElementById('email').value.trim();
-
-  if (!first || !last || !biz || !em) {
-    alert('Please fill in all required fields.');
-    return;
-  }
-
-  const btn = document.getElementById('btnSubmit');
-  const errEl = document.getElementById('checkoutError');
-  errEl.style.display = 'none';
-  btn.disabled = true;
-  btn.textContent = 'Redirecting to Stripe…';
-
-  const cartKeys = Object.keys(cart);
-
-  try {
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cartKeys,
-        customerEmail: em,
-        customerName: `${first} ${last}`,
-        businessName: biz,
-        siteUrl: location.origin,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.url) {
-      throw new Error(data.error || 'Something went wrong. Please try again.');
-    }
-
-    // Clear cart on successful redirect
-    sessionStorage.removeItem('tddCart');
-    window.location.href = data.url;
-
-  } catch (err) {
-    errEl.textContent = err.message;
-    errEl.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Proceed to Secure Checkout ↗';
-  }
+  if (!first || !last || !biz || !em) { alert('Please fill in all required fields.'); return; }
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successState').classList.add('show');
+  sessionStorage.removeItem('tddCart');
 }
 
-function updateBadge() {
+render();
+</script>
+<script>
+(function updateCartBadge() {
   try {
     const stored = JSON.parse(sessionStorage.getItem('tddCart') || '{}');
     const count = Object.keys(stored).length;
     const badge = document.getElementById('cartBadge');
     if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? 'inline-flex' : 'none';
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
     }
   } catch(e) {}
-}
-
-render();
-updateBadge();
+})();
 </script>
-
 </body>
 </html>
