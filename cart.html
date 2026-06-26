@@ -412,15 +412,42 @@ function removeItem(k) {
   render();
 }
 
-function submitOrder() {
+async function submitOrder() {
   const first = document.getElementById('firstName').value.trim();
   const last  = document.getElementById('lastName').value.trim();
   const biz   = document.getElementById('businessName').value.trim();
   const em    = document.getElementById('email').value.trim();
   if (!first || !last || !biz || !em) { alert('Please fill in all required fields.'); return; }
-  document.getElementById('formSection').style.display = 'none';
-  document.getElementById('successState').classList.add('show');
-  sessionStorage.removeItem('tddCart');
+
+  const btn = document.getElementById('btnSubmit');
+  btn.textContent = 'Redirecting to payment…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cartKeys: Object.keys(cart),
+        customerEmail: em,
+        customerName: first + ' ' + last,
+        businessName: biz,
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      sessionStorage.removeItem('tddCart');
+      window.location.href = data.url;
+    } else {
+      alert('Something went wrong: ' + (data.error || 'Unknown error'));
+      btn.textContent = 'Submit Order & Pay Now ↗';
+      btn.disabled = false;
+    }
+  } catch(err) {
+    alert('Could not connect to checkout. Please try again.');
+    btn.textContent = 'Submit Order & Pay Now ↗';
+    btn.disabled = false;
+  }
 }
 
 render();
