@@ -349,8 +349,8 @@ function render() {
   // Items
   document.getElementById('cartItems').innerHTML = keys.map(k => {
     const p = cart[k];
-    const depAmt = p.deposit ? Math.round(p.price * 0.5) : p.price;
-    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString()} deposit` : `$${p.price.toLocaleString()}`;
+    const depAmt = p.deposit ? p.price * 0.5 : p.price;
+    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} deposit` : `$${p.price.toLocaleString()}`;
     const sub  = p.monthly > 0 ? 'Monthly' : p.deposit ? 'Website build (50% now)' : 'One-time';
     return `<div class="cart-item">
       <div>
@@ -368,13 +368,15 @@ function render() {
   const monthly    = keys.reduce((s,k) => s + (cart[k].monthly||0), 0);
   const pkgKeys    = ['sapling','timber','oldgrowth','reskin'];
   const depItems   = keys.filter(k => cart[k].deposit);
+  const fullPkgItems = keys.filter(k => pkgKeys.some(p => k === p) && !cart[k].deposit);
   const pkgItems   = keys.filter(k => pkgKeys.some(p => k === p));
   const addonItems = keys.filter(k => !pkgKeys.some(p => k === p) && cart[k].price > 0);
   const pkgAmt     = pkgItems.reduce((s,k) => s + (cart[k].price||0), 0);
-  const depAmt     = depItems.reduce((s,k) => s + Math.round(cart[k].price*.5), 0);
+  const depAmt     = depItems.reduce((s,k) => s + cart[k].price * 0.5, 0);
+  const fullPkgAmt = fullPkgItems.reduce((s,k) => s + cart[k].price, 0);
   const fullAmt    = addonItems.reduce((s,k) => s + cart[k].price, 0);
-  const onLaunch   = depItems.reduce((s,k) => s + (cart[k].price - Math.round(cart[k].price*.5)), 0);
-  const dueToday   = depAmt + fullAmt + monthly;
+  const onLaunch   = depItems.reduce((s,k) => s + cart[k].price * 0.5, 0);
+  const dueToday   = depAmt + fullPkgAmt + fullAmt + monthly;
 
   let totHtml = '';
   if (pkgAmt) totHtml += `<div class="total-row"><span>Project total</span><span>$${pkgAmt.toLocaleString()}</span></div>`;
