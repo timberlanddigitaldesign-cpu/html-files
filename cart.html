@@ -19,13 +19,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#060E1A;--navy:#0A1628;--navy2:#0D1E35;
+  --bg:#00100A;--navy:#0A1628;--navy2:#0D1E35;
   --amber:#00C8FF;--amber-light:#40E0FF;
   --cream:#F5F0E8;--green:#00C87A;
   --card:rgba(13,30,53,0.85);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;min-height:100vh}
+body{background:#00100A;color:var(--cream);font-family:'Inter',sans-serif;min-height:100vh}
 
 /* ── NAV ── */
 nav{position:sticky;top:0;z-index:200;background:rgba(6,14,26,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,200,255,0.1);display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:66px}
@@ -40,8 +40,8 @@ nav{position:sticky;top:0;z-index:200;background:rgba(6,14,26,0.95);backdrop-fil
 .nav-cart-btn:hover{border-color:var(--amber)!important;color:var(--amber)!important;}
 .nav-cart-btn svg{flex-shrink:0;}
 .cart-badge{display:inline-flex!important;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:20px;background:var(--amber);color:#060E1A;font-size:.62rem;font-weight:700;line-height:1;margin-left:.25rem;font-family:'Inter',sans-serif;}
-.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
-.hamburger span{display:block;width:22px;height:2px;background:var(--cream);border-radius:2px}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;z-index:1001;position:relative}
+.hamburger span{display:block;width:22px;height:2px;background:#F5F0E8;border-radius:2px}
 .mobile-nav{display:none;position:fixed;top:66px;left:0;right:0;z-index:199;background:rgba(6,14,26,0.98);padding:1.5rem 5% 2rem;border-bottom:1px solid rgba(0,200,255,0.15);flex-direction:column}
 .mobile-nav.open{display:flex}
 .mobile-nav a{color:rgba(245,240,232,0.85);font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;text-align:left;padding:.8rem 0;border-bottom:1px solid rgba(0,200,255,0.1);transition:color .2s;text-decoration:none;display:block}
@@ -143,8 +143,28 @@ footer{background:#030A12;color:rgba(200,230,240,0.6);padding:52px 5% 36px;displ
   gtag('js', new Date());
   gtag('config', 'GA_MEASUREMENT_ID');
 </script>
+
+<style>
+html, body { overflow-x: hidden; }
+body {
+  background: #00100A !important;
+  padding-top: 66px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-wrap { flex: 1; min-height: 60vh; position: relative; z-index: 2; }
+nav { z-index: 200 !important; position: fixed !important; top: 0; left: 0; right: 0; pointer-events: all !important; }
+nav a, nav button, nav li { pointer-events: all !important; cursor: pointer !important; }
+.hamburger { pointer-events: all !important; cursor: pointer !important; z-index: 201 !important; }
+.mobile-nav { z-index: 199 !important; pointer-events: all !important; }
+#circuitWrap, #bgCircuit { pointer-events: none !important; z-index: 0 !important; }
+footer, .foot-bottom { position: relative; z-index: 2; background: #030A12 !important; }
+</style>
 </head>
 <body>
+<div id="circuitWrap" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;"><canvas id="bgCircuit" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 1.5s ease;"></canvas></div>
+
 
 <nav>
   <a class="nav-logo" href="index.html">Timberland <span>Digital</span></a>
@@ -422,5 +442,186 @@ render();
   } catch(e) {}
 })();
 </script>
+
+<script>
+(function initCircuit() {
+  const canvas = document.getElementById('bgCircuit');
+  const ctx    = canvas.getContext('2d');
+
+  const BG        = '#00100A';
+  const LINE_CLR  = '#00C87A';
+  const NODE_CLR  = '#40FFB0';
+  const PULSE_CLR = '#C0FFE0';
+  const GRID      = 42;
+
+  let cols, rows, nodes, traces, pulses;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Build based on full page so circuit extends everywhere
+    cols  = Math.floor(canvas.width  / GRID) + 2;
+    rows  = Math.floor((document.body.scrollHeight || window.innerHeight) / GRID) + 2;
+    build();
+    draw();
+  }
+
+  function build() {
+    nodes  = [];
+    traces = [];
+    pulses = [];
+
+    const nodeSet = new Set();
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (Math.random() < 0.26) {
+          nodeSet.add(`${c},${r}`);
+          nodes.push({ x: c*GRID, y: r*GRID, big: Math.random() < 0.12 });
+        }
+      }
+    }
+
+    const nodeArr = [...nodeSet].map(k => {
+      const [c,r] = k.split(',').map(Number);
+      return { c, r, x:c*GRID, y:r*GRID };
+    });
+
+    nodeArr.forEach(n => {
+      if (nodeSet.has(`${n.c+1},${n.r}`) && Math.random() < 0.65)
+        traces.push({ x1:n.x, y1:n.y, x2:(n.c+1)*GRID, y2:n.y });
+      if (nodeSet.has(`${n.c},${n.r+1}`) && Math.random() < 0.65)
+        traces.push({ x1:n.x, y1:n.y, x2:n.x, y2:(n.r+1)*GRID });
+      if (nodeSet.has(`${n.c+2},${n.r+1}`) && Math.random() < 0.2) {
+        const mx = (n.c+2)*GRID;
+        traces.push({ x1:n.x, y1:n.y, x2:mx,  y2:n.y  });
+        traces.push({ x1:mx,  y1:n.y, x2:mx,  y2:(n.r+1)*GRID });
+      }
+    });
+
+    const count = Math.min(28, traces.length);
+    for (let i = 0; i < count; i++) spawnPulse();
+  }
+
+  function spawnPulse() {
+    if (!traces.length) return;
+    const t = traces[Math.floor(Math.random() * traces.length)];
+    pulses.push({ trace:t, progress:Math.random(), speed:0.003 + Math.random()*0.005 });
+  }
+
+  function draw() {
+    const scrollY = window.scrollY || window.pageYOffset;
+    // Parallax offset — circuit moves at 40% of scroll speed
+    const offsetY = -(scrollY * 0.4) % (rows * GRID);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.translate(0, offsetY);
+
+    // traces
+    ctx.strokeStyle = LINE_CLR;
+    ctx.lineWidth   = 1;
+    ctx.globalAlpha = 0.18;
+    traces.forEach(t => {
+      ctx.beginPath(); ctx.moveTo(t.x1,t.y1); ctx.lineTo(t.x2,t.y2); ctx.stroke();
+    });
+
+    // nodes
+    nodes.forEach(n => {
+      ctx.globalAlpha = n.big ? 0.45 : 0.28;
+      ctx.fillStyle   = n.big ? NODE_CLR : LINE_CLR;
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.big ? 4 : 2.5, 0, Math.PI*2); ctx.fill();
+      if (n.big) {
+        ctx.strokeStyle = NODE_CLR; ctx.lineWidth = 1; ctx.globalAlpha = 0.18;
+        ctx.beginPath(); ctx.arc(n.x, n.y, 9, 0, Math.PI*2); ctx.stroke();
+      }
+    });
+
+    // pulses with fade in/out
+    pulses.forEach(p => {
+      const t  = p.trace;
+      const px = t.x1 + (t.x2-t.x1)*p.progress;
+      const py = t.y1 + (t.y2-t.y1)*p.progress;
+      // Fade in over first 15%, fade out over last 15%
+      const fadeIn  = Math.min(1, p.progress / 0.15);
+      const fadeOut = Math.min(1, (1 - p.progress) / 0.15);
+      const alpha   = Math.min(fadeIn, fadeOut);
+      const g  = ctx.createRadialGradient(px,py,0,px,py,12);
+      g.addColorStop(0, PULSE_CLR); g.addColorStop(1,'transparent');
+      ctx.globalAlpha = 0.85 * alpha; ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(px,py,12,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha = alpha; ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(px,py,2,0,Math.PI*2); ctx.fill();
+    });
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function animate() {
+    pulses.forEach(p => {
+      p.progress += p.speed;
+      if (p.progress >= 1) {
+        p.trace    = traces[Math.floor(Math.random()*traces.length)];
+        p.progress = 0;
+        p.speed    = 0.003 + Math.random()*0.005;
+      }
+    });
+    draw();
+    requestAnimationFrame(animate);
+  }
+
+  resize();
+  // Rebuild on resize but debounce
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 200); });
+  setTimeout(() => { canvas.style.opacity = '1'; }, 150);
+  animate();
+})();
+</script>
+
+
+<script>
+(function navPulse() {
+  const nav = document.querySelector('nav');
+  if (!nav) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = 'navPulseCanvas';
+  nav.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+
+  const accent = getComputedStyle(document.documentElement)
+    .getPropertyValue('--amber').trim() || '#00C8FF';
+
+  function hexToRgb(hex) {
+    hex = hex.replace('#','');
+    return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+  }
+
+  function draw() {
+    const w = nav.offsetWidth;
+    canvas.width = w; canvas.height = 1;
+    canvas.style.cssText = 'position:absolute;bottom:0;left:0;pointer-events:none;';
+
+    const [ar,ag,ab] = hexToRgb(accent);
+    const grad = ctx.createLinearGradient(0,0,w,0);
+    grad.addColorStop(0,'transparent');
+    grad.addColorStop(0.2,`rgba(${ar},${ag},${ab},0.2)`);
+    grad.addColorStop(0.5,`rgba(${ar},${ag},${ab},0.5)`);
+    grad.addColorStop(0.8,`rgba(${ar},${ag},${ab},0.2)`);
+    grad.addColorStop(1,'transparent');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,0.5); ctx.lineTo(w,0.5); ctx.stroke();
+  }
+
+  draw();
+  window.addEventListener('resize', draw);
+})();
+</script>
+
 </body>
 </html>
