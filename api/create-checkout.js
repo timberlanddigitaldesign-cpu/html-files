@@ -12,25 +12,25 @@ const PRICE_MAP = {
     type:           'deposit',
     depositPriceId: 'price_1TmUE3LHhM9UWHAYKe9RCklA',
     balancePriceId: 'price_1TmQwfLHhM9UWHAYZWyZDCd1',
-    fullPrice:      1499,
+    fullPrice:      1399,
   },
   oldgrowth: {
     type:           'deposit',
     depositPriceId: 'price_1TmQygLHhM9UWHAYlNf4eTTE',
     balancePriceId: 'price_1TmR3CLHhM9UWHAY2scly7EC',
-    fullPrice:      2799,
+    fullPrice:      2699,
   },
 
   // ── Reskin (full price upfront) ──
   reskin: { type: 'one_time', priceId: 'price_1TmR4XLHhM9UWHAYfZFWVzOv', fullPrice: 349 },
 
   // ── Care Plans (recurring monthly) ──
-  'care-sapling':      { type: 'subscription', priceId: 'price_1TmR5hLHhM9UWHAYpv9coAf3', monthly: 79  },
-  'care-timber':       { type: 'subscription', priceId: 'price_1TmR6PLHhM9UWHAYjgt1SJto', monthly: 129 },
-  'care-oldgrowth':    { type: 'subscription', priceId: 'price_1TmR76LHhM9UWHAYJnrfGYED', monthly: 229 },
-  'care-sapling-sa':   { type: 'subscription', priceId: 'price_1TmR5hLHhM9UWHAYpv9coAf3', monthly: 79  },
-  'care-timber-sa':    { type: 'subscription', priceId: 'price_1TmR6PLHhM9UWHAYjgt1SJto', monthly: 129 },
-  'care-oldgrowth-sa': { type: 'subscription', priceId: 'price_1TmR76LHhM9UWHAYJnrfGYED', monthly: 229 },
+  'care-sapling':      { type: 'subscription', priceId: 'price_1Tmy7rLHhM9UWHAYFTuEQvE2', monthly: 59  },
+  'care-timber':       { type: 'subscription', priceId: 'price_1Tmy8KLHhM9UWHAYB0rtfyJ5', monthly: 99  },
+  'care-oldgrowth':    { type: 'subscription', priceId: 'price_1Tmy8aLHhM9UWHAYEtXnumyK', monthly: 179 },
+  'care-sapling-sa':   { type: 'subscription', priceId: 'price_1Tmy7rLHhM9UWHAYFTuEQvE2', monthly: 59  },
+  'care-timber-sa':    { type: 'subscription', priceId: 'price_1Tmy8KLHhM9UWHAYB0rtfyJ5', monthly: 99  },
+  'care-oldgrowth-sa': { type: 'subscription', priceId: 'price_1Tmy8aLHhM9UWHAYEtXnumyK', monthly: 179 },
 
   // ── Add-Ons (full price upfront) ──
   copywriting: { type: 'one_time', priceId: 'price_1TmR81LHhM9UWHAYWw3k2eAb', fullPrice: 249 },
