@@ -1168,6 +1168,14 @@ nav { z-index: 300 !important; }
 .annual-banner h3 { color: #C8DCE4 !important; }
 .annual-banner p { color: #6A8A9A !important; }
 
+/* Billing interval toggle */
+.care-billing-toggle { display: flex; gap: .5rem; justify-content: center; margin: 1.75rem 0 0; flex-wrap: wrap; }
+.care-toggle-btn { background: rgba(13,30,53,0.6); border: 1.5px solid rgba(0,200,255,0.18); color: rgba(245,240,232,0.55); font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .55rem 1.3rem; border-radius: 6px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: .5rem; }
+.care-toggle-btn:hover { border-color: rgba(0,200,122,0.4); color: rgba(245,240,232,0.85); }
+.care-toggle-btn.active { background: rgba(0,200,122,0.12); border-color: #00C87A; color: #F5F0E8; }
+.toggle-save { background: #00C87A; color: #00100A; font-size: .65rem; font-weight: 700; padding: .15rem .45rem; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.care-billing-note { font-size: .78rem; color: #00C87A; text-align: center; min-height: 1.4em; margin: .6rem 0 .75rem; font-weight: 500; letter-spacing: .01em; }
+
 /* Upsell cards */
 .upsell-card { background: rgba(10,22,40,0.90) !important; border: 1px solid rgba(0,200,255,0.12) !important; }
 .upsell-name { color: #C8DCE4 !important; }
@@ -1664,12 +1672,19 @@ nav::after {
     <h2 class="section-title">We keep your site healthy<br>every single month.</h2>
     <p class="section-sub">Your website isn't a one-and-done project. Every Care Plan includes hosting, backups, and security monitoring so you never have to worry about it again.</p>
   </div>
+  <!-- Billing interval toggle -->
+  <div class="care-billing-toggle fade-up">
+    <button class="care-toggle-btn active" data-interval="monthly" onclick="setCareInterval('monthly',this)">Monthly</button>
+    <button class="care-toggle-btn" data-interval="sixmonth" onclick="setCareInterval('sixmonth',this)">6-Month <span class="toggle-save">1 mo free</span></button>
+    <button class="care-toggle-btn" data-interval="annual" onclick="setCareInterval('annual',this)">Annual <span class="toggle-save">2 mo free</span></button>
+  </div>
+
   <div class="care-cards fade-up">
 
     <div class="care-card care-sapling">
       <div class="care-card-header">
         <div class="care-card-name">Sapling</div>
-        <div class="care-card-price">$59<span>/mo</span></div>
+        <div class="care-card-price" id="price-sapling">$59<span>/mo</span></div>
       </div>
       <ul class="care-card-list">
         <li class="ck">Managed WordPress hosting</li>
@@ -1681,16 +1696,16 @@ nav::after {
         <li class="ck">Support response: 48 hours</li>
         <li class="no">Quarterly SEO health check</li>
         <li class="no">Annual site audit</li>
-        <li class="ck">Annual: 2 months free</li>
       </ul>
-      <a href="cart.html" onclick="addToCart(event,'care-sapling-sa')" data-cart-key="care-sapling-sa" class="pkg-btn pkg-btn-o" style="display:block;text-align:center;text-decoration:none;border-color:rgba(70,95,115,0.4) !important;color:#5A8A9A !important;">🛒 Add to Cart</a>
+      <div class="care-billing-note" id="note-sapling"></div>
+      <a href="cart.html" id="btn-sapling" onclick="addCareToCart(event,'sapling')" class="pkg-btn pkg-btn-o" style="display:block;text-align:center;text-decoration:none;border-color:rgba(70,95,115,0.4) !important;color:#5A8A9A !important;">🛒 Add to Cart</a>
     </div>
 
     <div class="care-card care-card-featured">
       <div class="pop-badge">Most Popular</div>
       <div class="care-card-header">
         <div class="care-card-name">Timber</div>
-        <div class="care-card-price">$99<span>/mo</span></div>
+        <div class="care-card-price" id="price-timber">$99<span>/mo</span></div>
       </div>
       <ul class="care-card-list">
         <li class="ck">Managed WordPress hosting</li>
@@ -1702,16 +1717,16 @@ nav::after {
         <li class="ck">Support response: 24 hours</li>
         <li class="no">Quarterly SEO health check</li>
         <li class="no">Annual site audit</li>
-        <li class="ck">Annual: 2 months free</li>
       </ul>
-      <a href="cart.html" onclick="addToCart(event,'care-timber-sa')" data-cart-key="care-timber-sa" class="pkg-btn pkg-btn-f" style="background:#00C87A;color:#00100A;" style="display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
+      <div class="care-billing-note" id="note-timber"></div>
+      <a href="cart.html" id="btn-timber" onclick="addCareToCart(event,'timber')" class="pkg-btn pkg-btn-f" style="background:#00C87A;color:#00100A;display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
     </div>
 
     <div class="care-card care-gold">
       <div class="gold-badge-care">✦ The Full Canopy ✦</div>
       <div class="care-card-header">
         <div class="care-card-name">Old Growth</div>
-        <div class="care-card-price">$179<span>/mo</span></div>
+        <div class="care-card-price" id="price-oldgrowth">$179<span>/mo</span></div>
       </div>
       <ul class="care-card-list">
         <li class="ck">Managed WordPress hosting</li>
@@ -1723,15 +1738,11 @@ nav::after {
         <li class="ck">Support response: 4 hours</li>
         <li class="ck">Quarterly SEO health check</li>
         <li class="ck">Annual site audit</li>
-        <li class="ck">Annual: 2 months free</li>
       </ul>
-      <a href="cart.html" onclick="addToCart(event,'care-oldgrowth-sa')" data-cart-key="care-oldgrowth-sa" class="pkg-btn pkg-btn-gold" style="display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
+      <div class="care-billing-note" id="note-oldgrowth"></div>
+      <a href="cart.html" id="btn-oldgrowth" onclick="addCareToCart(event,'oldgrowth')" class="pkg-btn pkg-btn-gold" style="display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
     </div>
 
-  </div>
-  <div class="annual-banner fade-up">
-    <div><h3>Pay annually, get 2 months free.</h3><p>Lock in your rate and save $118–$358 per year. We'll include a complimentary homepage refresh on your anniversary.</p></div>
-    <button class="btn-primary" onclick="location.href='contact.html'">Ask About Annual Plans</button>
   </div>
 </section>
 
@@ -2064,21 +2075,75 @@ function filterPort(btn, cat) {
 
 <script>
 const PRODUCTS_SVC = {
-  sapling:           'The Sapling',
-  timber:            'The Timber',
-  oldgrowth:         'The Old Growth',
-  reskin:            'The Reskin',
-  'care-sapling-sa': 'Sapling Care Plan',
-  'care-timber-sa':  'Timber Care Plan',
-  'care-oldgrowth-sa':'Old Growth Care Plan',
-  copywriting:       'Professional Copywriting',
-  photos:            'Stock Photo Sourcing',
-  gbp:               'Google Business Profile',
-  booking:           'Booking Integration',
-  email:             'Branded Email Setup',
-  reviews:           'Review Generation Page',
-  revision:          'Extra Revision Round',
+  sapling:                    'The Sapling',
+  timber:                     'The Timber',
+  oldgrowth:                  'The Old Growth',
+  reskin:                     'The Reskin',
+  'care-sapling-sa':          'Sapling Care Plan (Monthly)',
+  'care-timber-sa':           'Timber Care Plan (Monthly)',
+  'care-oldgrowth-sa':        'Old Growth Care Plan (Monthly)',
+  'care-sapling-6mo':         'Sapling Care Plan (6-Month)',
+  'care-timber-6mo':          'Timber Care Plan (6-Month)',
+  'care-oldgrowth-6mo':       'Old Growth Care Plan (6-Month)',
+  'care-sapling-annual':      'Sapling Care Plan (Annual)',
+  'care-timber-annual':       'Timber Care Plan (Annual)',
+  'care-oldgrowth-annual':    'Old Growth Care Plan (Annual)',
+  copywriting:                'Professional Copywriting',
+  photos:                     'Stock Photo Sourcing',
+  gbp:                        'Google Business Profile',
+  booking:                    'Booking Integration',
+  email:                      'Branded Email Setup',
+  reviews:                    'Review Generation Page',
+  revision:                   'Extra Revision Round',
 };
+
+// Care plan billing interval state
+let careInterval = 'monthly';
+
+const CARE_RATES = {
+  sapling:   59,
+  timber:    99,
+  oldgrowth: 179,
+};
+
+function setCareInterval(interval, btn) {
+  careInterval = interval;
+  document.querySelectorAll('.care-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  ['sapling','timber','oldgrowth'].forEach(tier => {
+    const mo = CARE_RATES[tier];
+    const priceEl = document.getElementById('price-' + tier);
+    const noteEl  = document.getElementById('note-' + tier);
+    if (!priceEl) return;
+
+    if (interval === 'monthly') {
+      priceEl.innerHTML = `$${mo}<span>/mo</span>`;
+      noteEl.textContent = '';
+    } else if (interval === 'sixmonth') {
+      const total = mo * 5;
+      priceEl.innerHTML = `$${total}<span> / 6 mo</span>`;
+      noteEl.textContent = `1 month free — billed as $${total} every 6 months`;
+    } else {
+      const total = mo * 10;
+      priceEl.innerHTML = `$${total}<span> / yr</span>`;
+      noteEl.textContent = `2 months free — billed as $${total} once per year`;
+    }
+  });
+
+  // Re-sync button states after key change
+  syncAllButtons();
+}
+
+function addCareToCart(e, tier) {
+  const keyMap = {
+    monthly:  { sapling:'care-sapling-sa', timber:'care-timber-sa', oldgrowth:'care-oldgrowth-sa' },
+    sixmonth: { sapling:'care-sapling-6mo', timber:'care-timber-6mo', oldgrowth:'care-oldgrowth-6mo' },
+    annual:   { sapling:'care-sapling-annual', timber:'care-timber-annual', oldgrowth:'care-oldgrowth-annual' },
+  };
+  const key = keyMap[careInterval][tier];
+  addToCart(e, key);
+}
 
 function getCart() {
   try { return JSON.parse(sessionStorage.getItem('tddCart') || '{}'); } catch(e) { return {}; }

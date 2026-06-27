@@ -32,6 +32,18 @@ const PRICE_MAP = {
   'care-timber-sa':    { type: 'subscription', priceId: 'price_1Tmy8KLHhM9UWHAYB0rtfyJ5', monthly: 99  },
   'care-oldgrowth-sa': { type: 'subscription', priceId: 'price_1Tmy8aLHhM9UWHAYEtXnumyK', monthly: 179 },
 
+  // ── Care Plans — 6-Month lump sum (5 months, 1 month free) ──
+  // TODO: Create these one-time prices in Stripe dashboard, then paste the price IDs below
+  'care-sapling-6mo':      { type: 'one_time', priceId: 'REPLACE_sapling_6mo',      fullPrice: 295  },
+  'care-timber-6mo':       { type: 'one_time', priceId: 'REPLACE_timber_6mo',       fullPrice: 495  },
+  'care-oldgrowth-6mo':    { type: 'one_time', priceId: 'REPLACE_oldgrowth_6mo',    fullPrice: 895  },
+
+  // ── Care Plans — Annual lump sum (10 months, 2 months free) ──
+  // TODO: Create these one-time prices in Stripe dashboard, then paste the price IDs below
+  'care-sapling-annual':   { type: 'one_time', priceId: 'REPLACE_sapling_annual',   fullPrice: 590  },
+  'care-timber-annual':    { type: 'one_time', priceId: 'REPLACE_timber_annual',     fullPrice: 990  },
+  'care-oldgrowth-annual': { type: 'one_time', priceId: 'REPLACE_oldgrowth_annual', fullPrice: 1790 },
+
   // ── Add-Ons (full price upfront) ──
   copywriting: { type: 'one_time', priceId: 'price_1TmR81LHhM9UWHAYWw3k2eAb', fullPrice: 249 },
   photos:      { type: 'one_time', priceId: 'price_1TmR8jLHhM9UWHAYM6A2zhHz', fullPrice: 99  },

@@ -79,6 +79,13 @@ nav{position:sticky;top:0;z-index:200;background:#00100A;border-bottom:1px solid
 .total-row.highlight{color:var(--amber);font-weight:700;font-size:1rem;padding-top:.6rem;margin-top:.4rem;border-top:1px solid rgba(0,200,255,0.1)}
 .total-row.monthly{color:#4A7A9B;font-size:.78rem}
 
+/* Care plan interval switcher in cart */
+.cart-interval-row { display: flex; gap: .35rem; margin-top: .55rem; flex-wrap: wrap; }
+.cart-interval-btn { background: rgba(13,30,53,0.5); border: 1px solid rgba(0,200,255,0.15); color: rgba(245,240,232,0.45); font-family: 'Inter', sans-serif; font-size: .68rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .3rem .7rem; border-radius: 4px; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: .35rem; }
+.cart-interval-btn:hover { border-color: rgba(0,200,122,0.35); color: rgba(245,240,232,0.8); }
+.cart-interval-btn.active { background: rgba(0,200,122,0.1); border-color: #00C87A; color: #F5F0E8; }
+.cart-interval-save { background: #00C87A; color: #00100A; font-size: .58rem; font-weight: 700; padding: .1rem .35rem; border-radius: 3px; }
+
 /* ── FORM ── */
 .section-label{font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:1rem;display:block}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.85rem}
@@ -300,23 +307,32 @@ footer, .foot-bottom { position: relative; z-index: 2; background: #030A12 !impo
 
 <script>
 const PRODUCTS = {
-  sapling:             { name:'The Sapling',               price:799,   monthly:0,   deposit:true,   stripe:null },
-  timber:              { name:'The Timber',                price:1399,  monthly:0,   deposit:true,   stripe:null },
-  oldgrowth:           { name:'The Old Growth',            price:2699,  monthly:0,   deposit:true,   stripe:null },
-  'care-sapling':      { name:'Sapling Care Plan',         price:0,     monthly:59,  deposit:false, stripe:null },
-  'care-timber':       { name:'Timber Care Plan',          price:0,     monthly:99,  deposit:false, stripe:null },
-  'care-oldgrowth':    { name:'Old Growth Care Plan',      price:0,     monthly:179, deposit:false, stripe:null },
-  reskin:              { name:'The Reskin',                price:349,   monthly:0,   deposit:false, stripe:null },
-  copywriting:         { name:'Professional Copywriting',  price:249,   monthly:0,   deposit:false, stripe:null },
-  photos:              { name:'Stock Photo Sourcing',      price:99,    monthly:0,   deposit:false, stripe:null },
-  gbp:                 { name:'Google Business Profile',   price:129,    monthly:0,   deposit:false, stripe:null },
-  booking:             { name:'Booking Integration',       price:149,   monthly:0,   deposit:false, stripe:null },
-  email:               { name:'Branded Email Setup',       price:129,   monthly:0,   deposit:false, stripe:null },
-  reviews:             { name:'Review Generation Page',    price:99,    monthly:0,   deposit:false, stripe:null },
-  revision:            { name:'Extra Revision Round',      price:99,    monthly:0,   deposit:false, stripe:null },
-  'care-sapling-sa':   { name:'Sapling Care (standalone)', price:0,     monthly:59,  deposit:false, stripe:null },
-  'care-timber-sa':    { name:'Timber Care (standalone)',  price:0,     monthly:99,  deposit:false, stripe:null },
-  'care-oldgrowth-sa': { name:'Old Growth Care (standalone)', price:0,  monthly:179, deposit:false, stripe:null },
+  sapling:                 { name:'The Sapling',                        price:799,   monthly:0,   deposit:true,  stripe:null },
+  timber:                  { name:'The Timber',                         price:1399,  monthly:0,   deposit:true,  stripe:null },
+  oldgrowth:               { name:'The Old Growth',                     price:2699,  monthly:0,   deposit:true,  stripe:null },
+  'care-sapling':          { name:'Sapling Care Plan',                  price:0,     monthly:59,  deposit:false, stripe:null },
+  'care-timber':           { name:'Timber Care Plan',                   price:0,     monthly:99,  deposit:false, stripe:null },
+  'care-oldgrowth':        { name:'Old Growth Care Plan',               price:0,     monthly:179, deposit:false, stripe:null },
+  reskin:                  { name:'The Reskin',                         price:349,   monthly:0,   deposit:false, stripe:null },
+  copywriting:             { name:'Professional Copywriting',           price:249,   monthly:0,   deposit:false, stripe:null },
+  photos:                  { name:'Stock Photo Sourcing',               price:99,    monthly:0,   deposit:false, stripe:null },
+  gbp:                     { name:'Google Business Profile',            price:129,   monthly:0,   deposit:false, stripe:null },
+  booking:                 { name:'Booking Integration',                price:149,   monthly:0,   deposit:false, stripe:null },
+  email:                   { name:'Branded Email Setup',                price:129,   monthly:0,   deposit:false, stripe:null },
+  reviews:                 { name:'Review Generation Page',             price:99,    monthly:0,   deposit:false, stripe:null },
+  revision:                { name:'Extra Revision Round',               price:99,    monthly:0,   deposit:false, stripe:null },
+  // Monthly standalone
+  'care-sapling-sa':       { name:'Sapling Care Plan',                  price:0,     monthly:59,  deposit:false, stripe:null, billingNote:'Billed monthly' },
+  'care-timber-sa':        { name:'Timber Care Plan',                   price:0,     monthly:99,  deposit:false, stripe:null, billingNote:'Billed monthly' },
+  'care-oldgrowth-sa':     { name:'Old Growth Care Plan',               price:0,     monthly:179, deposit:false, stripe:null, billingNote:'Billed monthly' },
+  // 6-month (5 months charged)
+  'care-sapling-6mo':      { name:'Sapling Care Plan — 6-Month',        price:295,   monthly:0,   deposit:false, stripe:null, billingNote:'6 months · 1 mo free ($295 one-time)' },
+  'care-timber-6mo':       { name:'Timber Care Plan — 6-Month',         price:495,   monthly:0,   deposit:false, stripe:null, billingNote:'6 months · 1 mo free ($495 one-time)' },
+  'care-oldgrowth-6mo':    { name:'Old Growth Care Plan — 6-Month',     price:895,   monthly:0,   deposit:false, stripe:null, billingNote:'6 months · 1 mo free ($895 one-time)' },
+  // Annual (10 months charged)
+  'care-sapling-annual':   { name:'Sapling Care Plan — Annual',         price:590,   monthly:0,   deposit:false, stripe:null, billingNote:'12 months · 2 mo free ($590 one-time)' },
+  'care-timber-annual':    { name:'Timber Care Plan — Annual',          price:990,   monthly:0,   deposit:false, stripe:null, billingNote:'12 months · 2 mo free ($990 one-time)' },
+  'care-oldgrowth-annual': { name:'Old Growth Care Plan — Annual',      price:1790,  monthly:0,   deposit:false, stripe:null, billingNote:'12 months · 2 mo free ($1,790 one-time)' },
 };
 
 // Load cart from URL param (e.g. cart.html?add=sapling,care-sapling)
@@ -351,17 +367,33 @@ function render() {
     const p = cart[k];
     const depAmt = p.deposit ? p.price * 0.5 : p.price;
     const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} deposit` : `$${p.price.toLocaleString()}`;
-    const sub  = p.monthly > 0 ? 'Monthly' : p.deposit ? 'Website build (50% now)' : 'One-time';
-    return `<div class="cart-item">
-      <div>
+    const sub  = p.billingNote ? p.billingNote : p.monthly > 0 ? 'Billed monthly' : p.deposit ? 'Website build (50% now)' : 'One-time';
+
+    // Detect if this is a care plan — offer interval switch
+    const careMatch = k.match(/^care-(sapling|timber|oldgrowth)(-sa|-6mo|-annual)?(-sa)?$/);
+    let intervalHtml = '';
+    if (careMatch) {
+      const tier = careMatch[1];
+      const cur = k.includes('-annual') ? 'annual' : k.includes('-6mo') ? 'sixmonth' : 'monthly';
+      intervalHtml = `<div class="cart-interval-row">
+        <button class="cart-interval-btn ${cur==='monthly'?'active':''}" onclick="switchCareInterval('${tier}','monthly','${k}')">Monthly</button>
+        <button class="cart-interval-btn ${cur==='sixmonth'?'active':''}" onclick="switchCareInterval('${tier}','sixmonth','${k}')">6-Month <span class="cart-interval-save">1 mo free</span></button>
+        <button class="cart-interval-btn ${cur==='annual'?'active':''}" onclick="switchCareInterval('${tier}','annual','${k}')">Annual <span class="cart-interval-save">2 mo free</span></button>
+      </div>`;
+    }
+
+    return `<div class="cart-item" id="item-${k}">
+      <div style="flex:1">
         <div class="cart-item-name">${p.name}</div>
         <div class="cart-item-sub">${sub}</div>
+        ${intervalHtml}
       </div>
       <div class="cart-item-right">
         <div class="cart-item-price">${disp}</div>
         <button class="cart-item-remove" onclick="removeItem('${k}')" title="Remove">✕</button>
       </div>
     </div>`;
+  }).join('');
   }).join('');
 
   // Totals
@@ -395,6 +427,20 @@ function render() {
 
 function removeItem(k) {
   delete cart[k];
+  saveCart();
+  render();
+}
+
+function switchCareInterval(tier, interval, oldKey) {
+  const keyMap = {
+    monthly:  { sapling:'care-sapling-sa',     timber:'care-timber-sa',     oldgrowth:'care-oldgrowth-sa'     },
+    sixmonth: { sapling:'care-sapling-6mo',    timber:'care-timber-6mo',    oldgrowth:'care-oldgrowth-6mo'    },
+    annual:   { sapling:'care-sapling-annual', timber:'care-timber-annual', oldgrowth:'care-oldgrowth-annual' },
+  };
+  const newKey = keyMap[interval][tier];
+  if (newKey === oldKey) return;
+  delete cart[oldKey];
+  if (PRODUCTS[newKey]) cart[newKey] = PRODUCTS[newKey];
   saveCart();
   render();
 }
