@@ -1698,7 +1698,7 @@ nav::after {
         <li class="no">Annual site audit</li>
       </ul>
       <div class="care-billing-note" id="note-sapling"></div>
-      <a href="cart.html" id="btn-sapling" onclick="addCareToCart(event,'sapling')" class="pkg-btn pkg-btn-o" style="display:block;text-align:center;text-decoration:none;border-color:rgba(70,95,115,0.4) !important;color:#5A8A9A !important;">🛒 Add to Cart</a>
+      <a href="cart.html" id="btn-sapling" data-care-tier="sapling" onclick="addCareToCart(event,'sapling')" class="pkg-btn pkg-btn-o" style="display:block;text-align:center;text-decoration:none;border-color:rgba(70,95,115,0.4) !important;color:#5A8A9A !important;">🛒 Add to Cart</a>
     </div>
 
     <div class="care-card care-card-featured">
@@ -1719,7 +1719,7 @@ nav::after {
         <li class="no">Annual site audit</li>
       </ul>
       <div class="care-billing-note" id="note-timber"></div>
-      <a href="cart.html" id="btn-timber" onclick="addCareToCart(event,'timber')" class="pkg-btn pkg-btn-f" style="background:#00C87A;color:#00100A;display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
+      <a href="cart.html" id="btn-timber" data-care-tier="timber" onclick="addCareToCart(event,'timber')" class="pkg-btn pkg-btn-f" style="background:#00C87A;color:#00100A;display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
     </div>
 
     <div class="care-card care-gold">
@@ -1740,7 +1740,7 @@ nav::after {
         <li class="ck">Annual site audit</li>
       </ul>
       <div class="care-billing-note" id="note-oldgrowth"></div>
-      <a href="cart.html" id="btn-oldgrowth" onclick="addCareToCart(event,'oldgrowth')" class="pkg-btn pkg-btn-gold" style="display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
+      <a href="cart.html" id="btn-oldgrowth" data-care-tier="oldgrowth" onclick="addCareToCart(event,'oldgrowth')" class="pkg-btn pkg-btn-gold" style="display:block;text-align:center;text-decoration:none;">🛒 Add to Cart</a>
     </div>
 
   </div>
@@ -2161,15 +2161,33 @@ function setButtonAdded(btn) {
 }
 
 function resetButton(btn) {
-  btn.textContent = btn.dataset.origText || 'Add to Cart';
+  btn.textContent = btn.dataset.origText || '🛒 Add to Cart';
   btn.style.opacity = '';
   btn.style.pointerEvents = '';
 }
 
 function syncAllButtons() {
   const cart = getCart();
+
+  // Standard keyed buttons
   document.querySelectorAll('[data-cart-key]').forEach(btn => {
     if (cart[btn.dataset.cartKey]) {
+      setButtonAdded(btn);
+    } else {
+      resetButton(btn);
+    }
+  });
+
+  // Care plan buttons — check against the key for the current interval
+  const keyMap = {
+    monthly:  { sapling:'care-sapling-sa', timber:'care-timber-sa', oldgrowth:'care-oldgrowth-sa' },
+    sixmonth: { sapling:'care-sapling-6mo', timber:'care-timber-6mo', oldgrowth:'care-oldgrowth-6mo' },
+    annual:   { sapling:'care-sapling-annual', timber:'care-timber-annual', oldgrowth:'care-oldgrowth-annual' },
+  };
+  document.querySelectorAll('[data-care-tier]').forEach(btn => {
+    const tier = btn.dataset.careTier;
+    const key  = keyMap[careInterval][tier];
+    if (cart[key]) {
       setButtonAdded(btn);
     } else {
       resetButton(btn);
