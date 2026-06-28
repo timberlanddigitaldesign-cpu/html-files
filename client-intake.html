@@ -485,35 +485,35 @@
       <div class="field">
         <label>What feeling should your site give off? <span class="optional">Pick all that apply</span></label>
         <div class="checkbox-grid" id="vibeGrid">
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Professional" />
             <div class="check-box">✓</div> Professional
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Friendly & Approachable" />
             <div class="check-box">✓</div> Friendly
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Bold & Confident" />
             <div class="check-box">✓</div> Bold
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Clean & Minimal" />
             <div class="check-box">✓</div> Minimal
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Warm & Rustic" />
             <div class="check-box">✓</div> Warm / Rustic
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Modern & Sleek" />
             <div class="check-box">✓</div> Modern
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Luxury / High-End" />
             <div class="check-box">✓</div> Luxury
           </label>
-          <label class="checkbox-item" onclick="toggleCheck(this)">
+          <label class="checkbox-item" onclick="toggleCheck(event, this)">
             <input type="checkbox" name="vibe[]" value="Fun & Playful" />
             <div class="check-box">✓</div> Fun / Playful
           </label>
@@ -634,7 +634,8 @@
 
 <script>
   // ── CHECKBOX TOGGLE ──
-  function toggleCheck(el) {
+  function toggleCheck(e, el) {
+    e.preventDefault();
     el.classList.toggle('checked');
     el.querySelector('input[type="checkbox"]').checked = el.classList.contains('checked');
     updateProgress();
@@ -723,3 +724,4 @@
 
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
