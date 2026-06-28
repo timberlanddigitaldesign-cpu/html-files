@@ -141,7 +141,7 @@ footer, .foot-bottom { position: relative; z-index: 2; background: #030A12 !impo
 <div id="circuitWrap" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"><canvas id="bgCircuit" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 1.5s ease;"></canvas></div>
 
 <nav>
-  <a class="nav-logo" href="index.html"><img src="newlogo-removebg-preview.png" alt="Rooted Coast Design" style="height:34px;width:auto;margin-right:.45rem;vertical-align:middle;">Rooted Coast <span>Design</span></a>
+  <a class="nav-logo" href="index.html"><img src="newlogo-removebg-preview.png" alt="Rooted Coast Design" style="height:34px;width:auto;vertical-align:middle;"></a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="about.html">About</a></li>
@@ -450,9 +450,4 @@ render();
   function build(){nodes=[];traces=[];pulses=[];const nodeSet=new Set();for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){if(Math.random()<0.26){nodeSet.add(`${c},${r}`);nodes.push({x:c*GRID,y:r*GRID,big:Math.random()<0.12});}}}const nodeArr=[...nodeSet].map(k=>{const[c,r]=k.split(',').map(Number);return{c,r,x:c*GRID,y:r*GRID};});nodeArr.forEach(n=>{if(nodeSet.has(`${n.c+1},${n.r}`)&&Math.random()<0.65)traces.push({x1:n.x,y1:n.y,x2:(n.c+1)*GRID,y2:n.y});if(nodeSet.has(`${n.c},${n.r+1}`)&&Math.random()<0.65)traces.push({x1:n.x,y1:n.y,x2:n.x,y2:(n.r+1)*GRID});if(nodeSet.has(`${n.c+2},${n.r+1}`)&&Math.random()<0.2){const mx=(n.c+2)*GRID;traces.push({x1:n.x,y1:n.y,x2:mx,y2:n.y});traces.push({x1:mx,y1:n.y,x2:mx,y2:(n.r+1)*GRID});}});const count=Math.min(28,traces.length);for(let i=0;i<count;i++)spawnPulse();}
   function spawnPulse(){if(!traces.length)return;const t=traces[Math.floor(Math.random()*traces.length)];pulses.push({trace:t,progress:Math.random(),speed:0.003+Math.random()*0.005});}
   function draw(){const scrollY=window.scrollY||window.pageYOffset;const offsetY=-(scrollY*0.4)%(rows*GRID);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle=BG;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.save();ctx.translate(0,offsetY);ctx.strokeStyle=LINE_CLR;ctx.lineWidth=1;ctx.globalAlpha=0.18;traces.forEach(t=>{ctx.beginPath();ctx.moveTo(t.x1,t.y1);ctx.lineTo(t.x2,t.y2);ctx.stroke();});nodes.forEach(n=>{ctx.globalAlpha=n.big?0.45:0.28;ctx.fillStyle=n.big?NODE_CLR:LINE_CLR;ctx.beginPath();ctx.arc(n.x,n.y,n.big?4:2.5,0,Math.PI*2);ctx.fill();if(n.big){ctx.strokeStyle=NODE_CLR;ctx.lineWidth=1;ctx.globalAlpha=0.18;ctx.beginPath();ctx.arc(n.x,n.y,9,0,Math.PI*2);ctx.stroke();}});pulses.forEach(p=>{const t=p.trace;const px=t.x1+(t.x2-t.x1)*p.progress;const py=t.y1+(t.y2-t.y1)*p.progress;const fadeIn=Math.min(1,p.progress/0.15);const fadeOut=Math.min(1,(1-p.progress)/0.15);const alpha=Math.min(fadeIn,fadeOut);const g=ctx.createRadialGradient(px,py,0,px,py,12);g.addColorStop(0,PULSE_CLR);g.addColorStop(1,'transparent');ctx.globalAlpha=0.85*alpha;ctx.fillStyle=g;ctx.beginPath();ctx.arc(px,py,12,0,Math.PI*2);ctx.fill();ctx.globalAlpha=alpha;ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fill();});ctx.restore();ctx.globalAlpha=1;}
-  function animate(){pulses.forEach(p=>{p.progress+=p.speed;if(p.progress>=1){p.trace=traces[Math.floor(Math.random()*traces.length)];p.progress=0;p.speed=0.003+Math.random()*0.005;}});draw();requestAnimationFrame(animate);}
-  resize();let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(resize,200);});setTimeout(()=>{canvas.style.opacity='1';},150);animate();
-})();
-</script>
-</body>
-</html>
+  function animate(){pulses.forEach(p=>{p.progress+=p.speed;if(p.progress>=1){p.trace=traces[
