@@ -457,7 +457,7 @@
         <div style="background:rgba(0,200,255,0.07);border:1px solid rgba(0,200,255,0.2);border-radius:8px;padding:20px 24px;">
           <p style="margin:0 0 8px;font-size:1rem;font-weight:600;color:#B8CED8;">📧 Email your files to us after submitting</p>
           <p style="margin:0 0 16px;font-size:.9rem;color:#7A95A8;">Once you hit submit, send your logo and photos to:</p>
-          <p style="margin:0 0 16px;font-size:1rem;font-weight:600;color:#00C8FF;">timberlanddigitaldesign@gmail.com</p>
+          <p style="margin:0 0 16px;font-size:1rem;font-weight:600;color:#00C8FF;word-break:break-all;">timberlanddigitaldesign@gmail.com</p>
           <p style="margin:0;font-size:.85rem;color:#7A95A8;">Include: your logo (PNG, SVG, or AI preferred), any team or job site photos, product shots — anything that shows what you do. No logo yet? No problem, just let us know in the notes below.</p>
         </div>
       </div>
@@ -623,7 +623,7 @@
   <div id="success-screen">
     <div class="success-icon">🌲</div>
     <h2>You're all set — <em>let's build!</em></h2>
-    <p>We've received your intake form and we'll be in touch within one business day to get the build started. Check your inbox for a confirmation.</p>
+    <p>We've received your intake form and we'll be in touch within one business day to get the build started. Don't forget to email your logo and photos to <a href="mailto:timberlanddigitaldesign@gmail.com" style="color:var(--green);">timberlanddigitaldesign@gmail.com</a>.</p>
   </div>
 
 </main>
@@ -713,6 +713,7 @@
 
   function showSuccess() {
     document.getElementById('intakeForm').style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
     document.getElementById('success-screen').style.display = 'block';
     document.getElementById('progressBar').style.width = '100%';
     document.getElementById('progressPct').textContent = '100%';
