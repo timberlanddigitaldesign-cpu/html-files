@@ -359,10 +359,12 @@ function render() {
 
   let totHtml = '';
   const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2});
-  if (pkgAmt) totHtml += `<div class="total-row"><span>Project total</span><span>$${fmt(pkgAmt)}</span></div>`;
+  const projectTotal = pkgAmt + fullAmt;
+  if (pkgAmt) totHtml += `<div class="total-row"><span>Package</span><span>$${fmt(pkgAmt)}</span></div>`;
+  if (fullAmt) totHtml += `<div class="total-row"><span>Add-ons</span><span>$${fmt(fullAmt)}</span></div>`;
+  if (projectTotal) totHtml += `<div class="total-row"><span>Project total</span><span>$${fmt(projectTotal)}</span></div>`;
   if (depAmt) totHtml += `<div class="total-row"><span>50% deposit (due today)</span><span>$${fmt(depAmt)}</span></div>`;
   if (onLaunch) totHtml += `<div class="total-row"><span>50% due on launch</span><span>$${fmt(onLaunch)}</span></div>`;
-  if (fullAmt) totHtml += `<div class="total-row"><span>Add-ons (full price)</span><span>$${fmt(fullAmt)}</span></div>`;
   if (monthly) totHtml += `<div class="total-row"><span>Care plan (first month)</span><span>$${monthly}/mo</span></div>`;
   totHtml += `<div class="total-row highlight"><span>Due today</span><span>$${fmt(dueToday)}</span></div>`;
   document.getElementById('cartTotals').innerHTML = totHtml;
