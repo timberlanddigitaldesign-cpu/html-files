@@ -51,7 +51,7 @@ nav{
   letter-spacing:.06em;text-transform:uppercase;color:var(--amber);
   text-shadow:0 0 6px rgba(0,200,255,0.5);
 }
-.nav-logo span{font-family:'Allura',cursive;font-size:1.55rem;font-weight:400;
+.nav-logo-tag{font-family:'Allura',cursive;font-size:1.55rem;font-weight:400;
   letter-spacing:.02em;line-height:1;color:var(--amber);margin-left:.05rem;}
 .nav-links{display:flex;gap:1.6rem;list-style:none;align-items:center}
 .nav-links button{
@@ -929,7 +929,7 @@ nav a, nav button, nav li { pointer-events: all !important; cursor: pointer !imp
 /* ── Nav Decorations ── */
 
 /* 2. Logo glow pulse */
-.nav-logo span {
+.nav-logo-tag {
   animation: logoPulse 3s ease-in-out infinite;
 }
 @keyframes logoPulse {
@@ -1014,7 +1014,7 @@ nav::after {
 </style>
 <style>
 /* Color cycling Digital logo matching circuit board rainbow */
-.nav-logo span {
+.nav-logo-tag {
   animation: digitalColorCycle 12s linear infinite !important;
 }
 @keyframes digitalColorCycle {
@@ -1376,7 +1376,7 @@ nav::after {
 
 <canvas id="bgCircuit" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.5s ease;"></canvas>
 <nav>
-  <a class="nav-logo" href="index.html"><img src="logo-mark.png" alt="Rooted Coast Design" style="height:32px;width:auto;vertical-align:middle;"><span class="nav-logo-name">Rooted Coast</span><span>Design</span></a>
+  <a class="nav-logo" href="index.html"><img src="logo-mark.png" alt="Rooted Coast Design" style="height:32px;width:auto;vertical-align:middle;"><span class="nav-logo-name">Rooted Coast</span><span class="nav-logo-tag">Design</span></a>
   <ul class="nav-links">
     <li><a href="index.html" class="active">Home</a></li>
     <li><a href="about.html">About</a></li>
