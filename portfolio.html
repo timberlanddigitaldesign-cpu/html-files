@@ -1469,11 +1469,20 @@ function submitForm() {
 </script>
 
 <script>
-(function updateCartBadge() {
   try {
     const stored = JSON.parse(sessionStorage.getItem('rcdCart') || '{}');
     const count = Object.keys(stored).length;
     const badge = document.getElementById('cartBadge');
     if (badge) {
       if (count > 0) {
-        badge.t
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

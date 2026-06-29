@@ -1448,4 +1448,14 @@ function submitForm() {
     const badge = document.getElementById('cartBadge');
     if (badge) {
       if (count > 0) {
-        badge.t
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

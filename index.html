@@ -1799,3 +1799,41 @@ function filterPort(btn, cat) {
     canvas.style.cssText = 'position:absolute;bottom:0;left:0;pointer-events:none;';
 
     const [ar,ag,ab] = hexToRgb(accent);
+    const grad = ctx.createLinearGradient(0,0,w,0);
+    grad.addColorStop(0,'transparent');
+    grad.addColorStop(0.2,`rgba(${ar},${ag},${ab},0.2)`);
+    grad.addColorStop(0.5,`rgba(${ar},${ag},${ab},0.5)`);
+    grad.addColorStop(0.8,`rgba(${ar},${ag},${ab},0.2)`);
+    grad.addColorStop(1,'transparent');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,0.5); ctx.lineTo(w,0.5); ctx.stroke();
+  }
+
+  draw();
+  window.addEventListener('resize', draw);
+})();
+</script>
+
+
+
+
+<script>
+(function updateCartBadge() {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem('rcdCart') || '{}');
+    const count = Object.keys(stored).length;
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
