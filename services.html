@@ -1765,7 +1765,7 @@ nav::after {
         <div class="addon-desc">Full-site copy written to convert visitors. SEO-optimized and voice-matched to your brand.</div>
       </div>
       <div class="addon-right">
-        <div class="addon-price">From $249</div>
+        <div class="addon-price">$249</div>
         <a href="cart.html" onclick="addToCart(event,'copywriting')" data-cart-key="copywriting" class="addon-btn" style="text-decoration:none;">Add</a>
       </div>
     </div>
@@ -2126,12 +2126,14 @@ function setCareInterval(interval, btn) {
       noteEl.textContent = '';
     } else if (interval === 'sixmonth') {
       const total = mo * 5;
-      priceEl.innerHTML = `$${total}<span> / 6 mo</span>`;
-      noteEl.textContent = `1 month free — billed as $${total} every 6 months`;
+      const fmt = total.toLocaleString();
+      priceEl.innerHTML = `$${fmt}<span> / 6 mo</span>`;
+      noteEl.textContent = `1 month free — billed as $${fmt} every 6 months`;
     } else {
       const total = mo * 10;
-      priceEl.innerHTML = `$${total}<span> / yr</span>`;
-      noteEl.textContent = `2 months free — billed as $${total} once per year`;
+      const fmt = total.toLocaleString();
+      priceEl.innerHTML = `$${fmt}<span> / yr</span>`;
+      noteEl.textContent = `2 months free — billed as $${fmt} once per year`;
     }
   });
 
