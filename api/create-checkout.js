@@ -1,5 +1,9 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// ── 4th of July Sale: 15% off, auto-applied at checkout through July 6, 2026 (PT) ──
+const PROMO_COUPON_ID = 'FOURTH-OF-JULY-15-PKG'; // 15% off — scoped to full builds only (Sapling/Timber/Old Growth), not add-ons/Care Plans/Reskin
+const PROMO_END = new Date('2026-07-07T06:59:59Z'); // 11:59:59pm PDT on July 6
+
 const PRICE_MAP = {
   // ── Website Packages (50% deposit at checkout) ──
   sapling: {
@@ -93,24 +97,37 @@ module.exports = async (req, res) => {
     ? `https://${process.env.VERCEL_URL}`
     : 'https://www.timberlanddigital.com');
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode,
-      line_items: lineItems,
-      customer_email: customerEmail || undefined,
+  const promoActive = new Date() <= PROMO_END;
 
-      metadata: {
-        business_name:         businessName || '',
-        customer_name:         customerName || '',
-        cart_keys:             cartKeys.join(','),
-        skipped_keys:          unknownKeys.join(','),
-        balance_due_at_launch: balanceItems.map(b => `${b.key}=$${b.amount}`).join(', '),
-      },
-      success_url: `${base}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${base}/cart.html`,
-      billing_address_collection: 'auto',
-      allow_promotion_codes: true,
-    });
+  const sessionParams = {
+    mode,
+    line_items: lineItems,
+    customer_email: customerEmail || undefined,
+
+    metadata: {
+      business_name:         businessName || '',
+      customer_name:         customerName || '',
+      cart_keys:             cartKeys.join(','),
+      skipped_keys:          unknownKeys.join(','),
+      balance_due_at_launch: balanceItems.map(b => `${b.key}=$${b.amount}`).join(', '),
+      promo_applied:         promoActive ? PROMO_COUPON_ID : '',
+    },
+    success_url: `${base}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url:  `${base}/cart.html`,
+    billing_address_collection: 'auto',
+  };
+
+  // Stripe doesn't allow combining `discounts` with `allow_promotion_codes`.
+  // During the sale window, auto-apply the coupon — no code needed.
+  // After it ends, fall back to manual promo code entry automatically.
+  if (promoActive) {
+    sessionParams.discounts = [{ coupon: PROMO_COUPON_ID }];
+  } else {
+    sessionParams.allow_promotion_codes = true;
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return res.status(200).json({ url: session.url, skipped: unknownKeys });
   } catch (err) {
