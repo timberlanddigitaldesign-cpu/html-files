@@ -1,7 +1,11 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // ── 4th of July Sale: 15% off, auto-applied at checkout through July 6, 2026 (PT) ──
-const PROMO_COUPON_ID = 'FOURTH-OF-JULY-15-PKG'; // 15% off — scoped to full builds only (Sapling/Timber/Old Growth), not add-ons/Care Plans/Reskin
+// Coupon is scoped in Stripe (applies_to.products) to ONLY the 3 package deposit
+// products (Sapling/Timber/Old Growth), so it can never discount add-ons, Care
+// Plans, or the Reskin even if they're bundled into the same checkout.
+const PROMO_COUPON_ID = 'FOURTH-OF-JULY-15-BUILD-ONLY';
+const PROMO_PACKAGE_KEYS = ['sapling', 'timber', 'oldgrowth'];
 const PROMO_END = new Date('2026-07-07T06:59:59Z'); // 11:59:59pm PDT on July 6
 
 const PRICE_MAP = {
@@ -70,6 +74,8 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
+  const promoActive = cartKeys.some(k => PROMO_PACKAGE_KEYS.includes(k)) && new Date() <= PROMO_END;
+
   const lineItems    = [];
   const unknownKeys  = [];
   const balanceItems = [];
@@ -80,7 +86,15 @@ module.exports = async (req, res) => {
 
     if (item.type === 'deposit') {
       lineItems.push({ price: item.depositPriceId, quantity: 1 });
-      balanceItems.push({ key, balancePriceId: item.balancePriceId, amount: item.fullPrice / 2 });
+      // Balance due at launch is recorded here for manual invoicing later.
+      // If the promo applied to this order, the balance gets the same 15%
+      // off so the customer's total matches the advertised discounted price
+      // (deposit is discounted automatically by the Stripe coupon below).
+      const halfFull = item.fullPrice / 2;
+      const balanceAmount = (promoActive && PROMO_PACKAGE_KEYS.includes(key))
+        ? Math.round(halfFull * 0.85 * 100) / 100
+        : halfFull;
+      balanceItems.push({ key, balancePriceId: item.balancePriceId, amount: balanceAmount });
     } else {
       lineItems.push({ price: item.priceId, quantity: 1 });
     }
@@ -96,8 +110,6 @@ module.exports = async (req, res) => {
   const base = siteUrl || (process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : 'https://www.timberlanddigital.com');
-
-  const promoActive = new Date() <= PROMO_END;
 
   const sessionParams = {
     mode,

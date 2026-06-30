@@ -64,6 +64,9 @@ nav{position:sticky;top:0;z-index:200;background:#00100A;border-bottom:1px solid
 .cart-item-sub{font-size:.72rem;color:#4A7A9B;margin-top:.15rem}
 .cart-item-right{display:flex;align-items:center;gap:.75rem}
 .cart-item-price{font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber);font-weight:700;white-space:nowrap}
+.cart-item-price-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:.15rem}
+.cart-item-was{font-size:.72rem;color:#4A7A9B;text-decoration:line-through;white-space:nowrap;display:flex;align-items:center;gap:.35rem}
+.cart-item-save{font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#060E1A;background:var(--amber);padding:.1rem .4rem;border-radius:3px;text-decoration:none}
 .cart-item-remove{background:none;border:none;color:rgba(245,240,232,0.3);cursor:pointer;font-size:.85rem;padding:.2rem .4rem;transition:color .2s}
 .cart-item-remove:hover{color:#ff6b6b}
 .cart-totals{background:rgba(13,30,53,0.6);border:1px solid rgba(0,200,255,0.12);border-radius:8px;padding:1.25rem 1.1rem;margin-bottom:2rem}
@@ -297,6 +300,13 @@ const PRODUCTS = {
   'care-oldgrowth-annual': { name:'Old Growth Care Plan — Annual',      price:1790,  monthly:0,   deposit:false, stripe:null, billingNote:'12 months · 2 mo free ($1,790 one-time)' },
 };
 
+// 4th of July Sale — 15% off full website builds only (Sapling/Timber/Old Growth).
+// Matches the cutoff in services.html and api/create-checkout.js.
+const PROMO_END  = new Date('2026-07-07T06:59:59Z');
+const PROMO_PKGS = ['sapling','timber','oldgrowth'];
+function promoActive() { return new Date() <= PROMO_END; }
+function effPrice(key, full) { return (promoActive() && PROMO_PKGS.includes(key)) ? Math.round(full * 0.85) : full; }
+
 let cart = {};
 const params = new URLSearchParams(location.search);
 const toAdd = params.get('add');
@@ -322,9 +332,12 @@ function render() {
 
   document.getElementById('cartItems').innerHTML = keys.map(k => {
     const p = cart[k];
-    const depAmt = p.deposit ? p.price * 0.5 : p.price;
-    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} deposit` : `$${p.price.toLocaleString()}`;
+    const eff = effPrice(k, p.price);
+    const onPromo = eff !== p.price;
+    const depAmt = p.deposit ? eff * 0.5 : eff;
+    const disp = p.monthly > 0 ? `$${p.monthly}/mo` : p.deposit ? `$${depAmt.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} deposit` : `$${eff.toLocaleString()}`;
     const sub  = p.billingNote ? p.billingNote : p.monthly > 0 ? 'Billed monthly' : p.deposit ? 'Website build (50% now)' : 'One-time';
+    const wasHtml = onPromo ? `<div class="cart-item-was">$${p.price.toLocaleString()} <span class="cart-item-save">15% off</span></div>` : '';
 
     const careMatch = k.match(/^care-(sapling|timber|oldgrowth)(-sa|-6mo|-annual)?(-sa)?$/);
     let intervalHtml = '';
@@ -345,7 +358,10 @@ function render() {
         ${intervalHtml}
       </div>
       <div class="cart-item-right">
-        <div class="cart-item-price">${disp}</div>
+        <div class="cart-item-price-wrap">
+          ${wasHtml}
+          <div class="cart-item-price">${disp}</div>
+        </div>
         <button class="cart-item-remove" onclick="removeItem('${k}')" title="Remove">✕</button>
       </div>
     </div>`;
@@ -357,12 +373,13 @@ function render() {
   const fullPkgItems = keys.filter(k => pkgKeys.some(p => k === p) && !cart[k].deposit);
   const pkgItems   = keys.filter(k => pkgKeys.some(p => k === p));
   const addonItems = keys.filter(k => !pkgKeys.some(p => k === p) && cart[k].price > 0);
-  const pkgAmt     = pkgItems.reduce((s,k) => s + (cart[k].price||0), 0);
-  const depAmt     = depItems.reduce((s,k) => s + cart[k].price * 0.5, 0);
-  const fullPkgAmt = fullPkgItems.reduce((s,k) => s + cart[k].price, 0);
+  const pkgAmt     = pkgItems.reduce((s,k) => s + effPrice(k, cart[k].price||0), 0);
+  const depAmt     = depItems.reduce((s,k) => s + effPrice(k, cart[k].price) * 0.5, 0);
+  const fullPkgAmt = fullPkgItems.reduce((s,k) => s + effPrice(k, cart[k].price), 0);
   const fullAmt    = addonItems.reduce((s,k) => s + cart[k].price, 0);
-  const onLaunch   = depItems.reduce((s,k) => s + cart[k].price * 0.5, 0);
+  const onLaunch   = depItems.reduce((s,k) => s + effPrice(k, cart[k].price) * 0.5, 0);
   const dueToday   = depAmt + fullPkgAmt + fullAmt + monthly;
+  const promoSavings = pkgItems.filter(k => PROMO_PKGS.includes(k)).reduce((s,k) => s + (cart[k].price - effPrice(k, cart[k].price)), 0);
 
   let totHtml = '';
   const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2});
@@ -370,6 +387,7 @@ function render() {
   if (pkgAmt) totHtml += `<div class="total-row"><span>Package</span><span>$${fmt(pkgAmt)}</span></div>`;
   if (fullAmt) totHtml += `<div class="total-row"><span>Add-ons</span><span>$${fmt(fullAmt)}</span></div>`;
   if (projectTotal) totHtml += `<div class="total-row"><span>Project total</span><span>$${fmt(projectTotal)}</span></div>`;
+  if (promoSavings > 0) totHtml += `<div class="total-row" style="color:var(--amber)"><span>🎆 4th of July Sale (15% off build)</span><span>−$${fmt(promoSavings)}</span></div>`;
   if (depAmt) totHtml += `<div class="total-row"><span>50% deposit (due today)</span><span>$${fmt(depAmt)}</span></div>`;
   if (onLaunch) totHtml += `<div class="total-row"><span>50% due on launch</span><span>$${fmt(onLaunch)}</span></div>`;
   if (monthly) totHtml += `<div class="total-row"><span>Care plan (first month)</span><span>$${monthly}/mo</span></div>`;
